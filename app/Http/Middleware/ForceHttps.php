@@ -13,7 +13,12 @@ class ForceHttps
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->secure() && app()->environment('production')) {
+        // Check if running behind a proxy (like Railway)
+        $isSecure = $request->secure() || 
+                    $request->header('X-Forwarded-Proto') === 'https' ||
+                    $request->header('X-Forwarded-Ssl') === 'on';
+        
+        if (!$isSecure && app()->environment('production')) {
             return redirect()->secure($request->getRequestUri());
         }
 
