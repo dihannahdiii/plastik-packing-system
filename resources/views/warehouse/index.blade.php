@@ -86,6 +86,42 @@
         @endif
     </div>
 
+    <!-- All Products Stock List -->
+    <div class="bg-white rounded-2xl p-6 mb-6">
+        <h2 class="text-xl font-bold mb-4">Daftar Semua Stok Produk</h2>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Nama Produk</th>
+                        <th class="px-4 py-3 text-left">Lokasi</th>
+                        <th class="px-4 py-3 text-center">Stok</th>
+                        <th class="px-4 py-3 text-right">Harga</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(App\Models\Product::with(['stock.location'])->orderBy('name')->get() as $product)
+                        @php
+                            $totalStock = $product->stock->sum('quantity');
+                            $locations = $product->stock->where('quantity', '>', 0)->pluck('location.name')->join(', ') ?: '-';
+                        @endphp
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="px-4 py-3">{{ $product->name }}</td>
+                            <td class="px-4 py-3 text-sm">{{ $locations }}</td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="font-semibold {{ $totalStock > 0 ? 'text-green-600' : 'text-red-600' }}">
+                                    {{ $totalStock }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- Update Stock Section -->
     <div class="bg-white rounded-2xl p-6">
         <h2 class="text-xl font-bold mb-4">Update Stok</h2>
