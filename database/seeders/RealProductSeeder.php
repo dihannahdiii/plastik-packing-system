@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
 use App\Models\Product;
 use App\Models\Location;
 use App\Models\Stock;
@@ -16,12 +17,29 @@ class RealProductSeeder extends Seeder
      */
     public function run(): void
     {
-        // Clear existing data (SQLite compatible)
+        // Clear existing data (SQLite compatible) - but keep users!
         DB::statement('PRAGMA foreign_keys = OFF;');
         Stock::truncate();
         Product::truncate();
         Location::truncate();
         DB::statement('PRAGMA foreign_keys = ON;');
+        
+        // Recreate users if they don't exist
+        if (\App\Models\User::count() === 0) {
+            \App\Models\User::create([
+                'name' => 'Admin',
+                'email' => 'admin@plastik.com',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+            ]);
+
+            \App\Models\User::create([
+                'name' => 'Staff Gudang',
+                'email' => 'gudang@plastik.com',
+                'password' => bcrypt('password'),
+                'role' => 'gudang',
+            ]);
+        }
 
         // Create Locations based on the spreadsheet
         $locations = [
